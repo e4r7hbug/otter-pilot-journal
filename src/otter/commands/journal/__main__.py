@@ -37,6 +37,12 @@ def journal_today():
     today = pendulum.create()
     LOG.debug('Today: %s', today)
 
+    path = PATH_FORMAT.format(year=today.year, month=today.month, date=today.to_date_string())
+    path = pathlib.Path(path).expanduser()
+    LOG.debug('Path of today: %s', path)
+
+    click.edit(filename=path)
+
 
 @click.command()
 @click.option('-y', '--yesterday', 'yesterday_option', is_flag=True, help='Grab journal from yesterday.')
