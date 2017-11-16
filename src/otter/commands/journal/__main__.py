@@ -1,6 +1,7 @@
 """Otter Pilot command journal."""
 import logging
 import pathlib
+import shutil
 
 import click
 import pendulum
@@ -8,6 +9,7 @@ import pendulum
 LOG = logging.getLogger(__name__)
 
 PATH_FORMAT = '~/bag/journal/{year}/{month}/{date}.md'
+TEMPLATE_PATH = pathlib.Path('~/.daily_template.md').expanduser()
 
 
 def output_yesterday():
@@ -41,7 +43,17 @@ def journal_today():
     path = pathlib.Path(path).expanduser()
     LOG.debug('Path of today: %s', path)
 
-    click.edit(filename=path)
+    parent = path.parent
+    if not parent.exists():
+        parent.mkdir(exist_ok=True)
+        LOG.debug('Created new path: %s', parent)
+
+    if not path.exists():
+        shutil.copyfile(TEMPLATE_PATH, path)
+
+    text = click.edit(filename=path)
+
+    return text
 
 
 @click.command()
