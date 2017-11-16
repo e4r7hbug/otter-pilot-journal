@@ -7,6 +7,8 @@ import pendulum
 
 LOG = logging.getLogger(__name__)
 
+PATH_FORMAT = '~/bag/journal/{year}/{month}/{date}.md'
+
 
 def output_yesterday():
     """Fetch and display yesterday's journal."""
@@ -19,8 +21,7 @@ def output_yesterday():
         yesterday = yesterday.previous(day_of_week=pendulum.FRIDAY)
         LOG.debug('Yesterday was a weekend, using last Friday: %s', yesterday)
 
-    path = '~/bag/journal/{year}/{month}/{date}.md'.format(
-        year=yesterday.year, month=yesterday.month, date=yesterday.to_date_string())
+    path = PATH_FORMAT.format(year=yesterday.year, month=yesterday.month, date=yesterday.to_date_string())
     path = pathlib.Path(path).expanduser()
     LOG.debug('Path of yesterday: %s', path)
 
