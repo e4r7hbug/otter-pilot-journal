@@ -36,7 +36,7 @@ def output_yesterday():
 
 def journal_today():
     """Write in today's journal."""
-    today = pendulum.create()
+    today = pendulum.today()
     LOG.debug('Today: %s', today)
 
     path = PATH_FORMAT.format(year=today.year, month=today.month, date=today.to_date_string())
