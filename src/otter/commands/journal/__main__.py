@@ -68,7 +68,7 @@ def main(yesterday_option):
         print(''.join(output))
     else:
         journal_today()
-    print('Otter Pilot journal reporting for duty!')
+    LOG.info('Otter Pilot journal reporting for duty!')
 
 
 if __name__ == '__main__':
