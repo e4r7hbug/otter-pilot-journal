@@ -12,20 +12,49 @@ PATH_FORMAT = '~/bag/journal/{year}/{month}/{date}.md'
 TEMPLATE_PATH = pathlib.Path('~/.daily_template.md').expanduser()
 
 
-def output_yesterday():
-    """Fetch and display yesterday's journal."""
-    output = []
+def yesterdays(max_past_days=10):
+    """Generate previous days starting from yesterday.
 
+    Args:
+        max_past_days (int): Max allowed days to go back in time.
+
+    Yields:
+        PosixPath: Fully qualified path to potential journal file.
+
+    """
     yesterday = pendulum.yesterday()
     LOG.debug('Yesterday: %s', yesterday)
 
-    if yesterday.day_of_week in yesterday.get_weekend_days():
-        yesterday = yesterday.previous(day_of_week=pendulum.FRIDAY)
-        LOG.debug('Yesterday was a weekend, using last Friday: %s', yesterday)
+    for number_of_days in range(max_past_days):
+        past = yesterday.subtract(days=number_of_days)
+        path = PATH_FORMAT.format(year=past.year, month=past.month, date=past.to_date_string())
+        path = pathlib.Path(path).expanduser()
+        LOG.debug('Path of past day: %s', path)
 
-    path = PATH_FORMAT.format(year=yesterday.year, month=yesterday.month, date=yesterday.to_date_string())
-    path = pathlib.Path(path).expanduser()
-    LOG.debug('Path of yesterday: %s', path)
+        yield path
+
+
+def output_yesterday(max_past_days=10):
+    """Fetch and display yesterday's journal.
+
+    Args:
+        max_past_days (int): Max allowed days to go back in time.
+
+    Returns:
+        list: Lines from yesterday's journal.
+
+    """
+    output = []
+
+    path = None
+
+    for yesterday_path in yesterdays(max_past_days=max_past_days):
+        if yesterday_path.is_file():
+            path = yesterday_path
+            LOG.debug('Found last known journal.')
+            break
+    else:
+        raise ValueError('Could not find previous journal in past {0:d} days.'.format(max_past_days))
 
     with path.open('rt') as path_handle:
         output = path_handle.readlines()
