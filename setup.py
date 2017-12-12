@@ -7,6 +7,8 @@ setup(
     description='Otter Pilot journal.',
     packages=find_packages(where='src'),
     package_dir={'': 'src'},
+    setup_requires=['setuptools_scm'],
+    use_scm_version=True,
     include_package_data=True,
     namespace_packages=['otter'],
     install_requires=[
