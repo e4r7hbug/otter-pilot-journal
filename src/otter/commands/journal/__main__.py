@@ -74,7 +74,7 @@ def journal_today():
 
     parent = path.parent
     if not parent.exists():
-        parent.mkdir(exist_ok=True)
+        parent.mkdir(parents=True, exist_ok=True)
         LOG.debug('Created new path: %s', parent)
 
     if not path.exists():
