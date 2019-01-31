@@ -35,7 +35,7 @@ def yesterdays(max_past_days=10):
 
 
 def output_yesterday(max_past_days=10):
-    """Fetch and display yesterday's journal.
+    """Fetch path to yesterday's journal.
 
     Args:
         max_past_days (int): Max allowed days to go back in time.
@@ -44,8 +44,6 @@ def output_yesterday(max_past_days=10):
         list: Lines from yesterday's journal.
 
     """
-    output = []
-
     path = None
 
     for yesterday_path in yesterdays(max_past_days=max_past_days):
@@ -56,15 +54,11 @@ def output_yesterday(max_past_days=10):
     else:
         raise ValueError('Could not find previous journal in past {0:d} days.'.format(max_past_days))
 
-    with path.open('rt') as path_handle:
-        output = path_handle.readlines()
-    LOG.debug('Yesterday output: %s', output)
-
-    return output
+    return path
 
 
 def journal_today():
-    """Write in today's journal."""
+    """Create today's journal if needed and return path."""
     today = pendulum.today()
     LOG.debug('Today: %s', today)
 
@@ -80,23 +74,44 @@ def journal_today():
     if not path.exists():
         shutil.copyfile(TEMPLATE_PATH, path)
 
-    text = click.edit(filename=path)
+    return path
+
+
+def edit_or_output(output=True, path=None):
+    """Open the journal file for editing or outputting.
+    
+    Args:
+        output (bool): Print journal when :obj:`True` or open editor.
+        path (pathlib.Path): Path of Journal file.
+
+    """
+    text = None
+
+    if output:
+        with path.open('rt') as path_handle:
+            text = path_handle.read()
+        click.echo(''.join(text))
+    else:
+        text = click.edit(filename=path)
 
     return text
 
 
 @click.command()
+@click.option('-o', '--output', is_flag=True, help='Only output journal contents.')
 @click.option('-y', '--yesterday', 'yesterday_option', is_flag=True, help='Grab journal from yesterday.')
-def main(yesterday_option):
+def main(output, yesterday_option):
     """Otter Pilot journal.
 
     Good for taking care of business.
     """
     if yesterday_option:
-        output = output_yesterday()
-        print(''.join(output))
+        path = output_yesterday()
     else:
-        journal_today()
+        path = journal_today()
+
+    edit_or_output(output=output, path=path)
+
     LOG.info('Otter Pilot journal reporting for duty!')
 
 
