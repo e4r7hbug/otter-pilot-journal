@@ -92,7 +92,7 @@ def edit_or_output(output=True, path=None):
             text = path_handle.read()
         click.echo(''.join(text))
     else:
-        text = click.edit(filename=path)
+        text = click.edit(filename=str(path))
 
     return text
 
